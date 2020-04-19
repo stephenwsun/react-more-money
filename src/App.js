@@ -1,26 +1,35 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useCallback } from "react";
+import { usePlaidLink } from "react-plaid-link";
+import "./App.css";
 
-function App() {
+const App = () => {
+  const onSuccess = useCallback(async (token, metadata) => {
+    // send token to server
+    console.log(`Token: ${token}`);
+    const data = await fetch("http://localhost:8000/auth/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ public_token: token })
+    });
+    const json = await data.json();
+    console.log(`Access token: ${json.access_token}`);
+  }, []);
+
+  const config = {
+    clientName: "More Money",
+    env: "sandbox",
+    product: ["auth", "transactions"],
+    publicKey: "aa41d2677d293ac2352aee21491d61",
+    onSuccess
+    // ...
+  };
+
+  const { open, ready, error } = usePlaidLink(config);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div onClick={() => open()} disabled={!ready}>
+      Connect a bank account
     </div>
   );
-}
-
+};
 export default App;
