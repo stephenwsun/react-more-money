@@ -19,17 +19,17 @@ const App = () => {
   const [accounts, setAccounts] = useState([])
   const [transactions, setTransactions] = useState([])
 
-  useEffect(() => {
-    getAllTransactions().then(data => {
-      const { accounts, transactions } = data.transactions
-      setAccounts(accounts)
-      setTransactions(transactions)
-    })
-  }, [])
+  // useEffect(() => {
+  //   getAllTransactions().then(data => {
+  //     const { accounts, transactions } = data.transactions
+  //     setAccounts(accounts)
+  //     setTransactions(transactions)
+  //   })
+  // }, [])
 
-  const getAllTransactions = async () => {
-    // const accessToken = await getAccessToken(token)
-    const accessToken = 'access-sandbox-863f6ead-5aac-45bd-a5be-d609778479e9'
+  const getAllTransactions = async token => {
+    const accessToken = await getAccessToken(token)
+    // const accessToken = 'access-sandbox-863f6ead-5aac-45bd-a5be-d609778479e9'
     const res = await fetch('http://localhost:8000/transactions', {
       method: 'GET',
       headers: {
@@ -71,9 +71,13 @@ const App = () => {
           </span>
         }
       >
-        {Array.isArray(accounts) && accounts.length > 0 ? (
-          accounts.map(account => <Menu.Item>{account.name}: {currency.format(account.balances.current)}</Menu.Item>)
-        ) : null}
+        {Array.isArray(accounts) && accounts.length > 0
+          ? accounts.map(account => (
+              <Menu.Item>
+                {account.name}: {currency.format(account.balances.current)}
+              </Menu.Item>
+            ))
+          : null}
       </SubMenu>
     )
   }
@@ -81,7 +85,7 @@ const App = () => {
   const currency = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-    minimumFractionDigits: 2
+    minimumFractionDigits: 2,
   })
 
   const onSuccess = useCallback(async (token, metadata) => {
