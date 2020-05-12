@@ -27,9 +27,30 @@ const App = () => {
   //   })
   // }, [])
 
-  const getAllTransactions = async token => {
+  const linkInstitution = async token => {
+    // Get access token with public token from server
     const accessToken = await getAccessToken(token)
-    // const accessToken = 'access-sandbox-863f6ead-5aac-45bd-a5be-d609778479e9'
+
+    // Get institution using access token
+    const res = await fetch('http://localhost:8000/institutions', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: accessToken,
+      },
+    })
+
+    if (200 !== res.status) {
+      console.error('Error getting institutions')
+    }
+
+    return await res.json()
+  }
+
+  const getAllTransactions = async token => {
+    // Get access token with public token from server
+    const accessToken = await getAccessToken(token)
+
     const res = await fetch('http://localhost:8000/transactions', {
       method: 'GET',
       headers: {
@@ -89,11 +110,14 @@ const App = () => {
   })
 
   const onSuccess = useCallback(async (token, metadata) => {
-    const data = await getAllTransactions(token)
-    const { accounts, transactions } = data.transactions
+    const data = await linkInstitution(token)
 
-    setAccounts(accounts)
-    setTransactions(transactions)
+    console.log('Data: ', data)
+
+    // const { accounts, transactions } = data.transactions
+
+    // setAccounts(accounts)
+    // setTransactions(transactions)
   }, [])
 
   const config = {
